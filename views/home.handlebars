@@ -1,0 +1,41 @@
+<h1>Keane's Workout Tracker:</h1>
+
+<div class="formContainer">
+	<form>
+		<fieldset>
+			<legend>Exercise Entry Form</legend>
+				<div>
+					<label for="name">Name:</label>
+					<input type="text" name="name" id="newName" placeholder="Exercise Name">
+				</div>
+				<div>
+					<label for="reps">Reps (#):</label>
+					<input type="number" name="reps" id="newReps">
+				</div>
+				<div>	
+					<label for="weight">Weight (#):</label>
+					<input type="number" name="weight" id="newWeight">
+				</div>
+				<div>
+					<label for="date">Date:</label>
+					<input type="date" name="date" id="newDate">
+				</div>
+				<div>
+					<label for="unit">Unit:</label>
+					<input type="radio" name="lbs" id="newUnit" value="1">lbs
+					<input type="radio" name="lbs" id="newUnit" value="0">kgs
+				</div>
+				<div>
+					<input type="submit" name="submit" id="addExercise">
+				</div>
+		</fieldset>
+	</form>
+</div>
+
+<div id="output">
+	<h2>Your workouts:</h2>
+	<div id="displayWorkout"></div>
+</div>
+
+<script src="table.js"></script>
+
