@@ -14,7 +14,7 @@ app.set('port', 33545);
 
 app.use(express.static(__dirname + '/public'));
 
-// Main
+// Homepage
 app.get('/', function(req, res, next){
 	var context = {};
 
@@ -29,6 +29,10 @@ app.get('/', function(req, res, next){
 	res.render('home', context);
 	
 	});
+});
+
+app.post('/', function(req, res, next){
+	res.render("edit-table");
 });
 
 // View whole table with get
@@ -95,18 +99,110 @@ app.post('/insert',function(req,res,next){
 });
 
 app.get('/insert', function(req, res, next){
+  	console.log("in insert get");
 	var context = {};
+ 
+	mysql.pool.query("INSERT INTO todo (`name`, `reps`, `weight`, `date`, `lbs`) VALUES (?, ?, ?, ?, ?)", [req.query.name, req.query.reps, req.query.weight, req.query.date, req.query.lbs], function(err, result){
+
+	if(err){
+      		next(err);
+      		return;
+    	}
 	
-	mysql.pool.query("INSERT INTO todo (`name`. `reps`, `weight`, `date`, `lbs`) VALUES (?, ?, ?, ?, ?)", [req.query.name, req.query.reps, req.query.weight, req.query.date, req.query.lbs], function(err, result){
-		if(err){
-			next(err);
-			return;
-		}	
-		res.type("application/json");
-		res.send(rows);
+	else{	
+		mysql.pool.query('SELECT * FROM todo', function(err, rows, fields){
+    			if(err){
+      				next(err);
+      				return;
+    			}
+			console.log(JSON.stringify(rows));    	
+
+    			res.type("application/json");
+    			res.send(rows);
+  		})
+	}
 	});
 });
 
+app.post('/delete',function(req,res,next){
+ 	console.log("in delete");
+	 var context = {};
+
+  	mysql.pool.query("DELETE FROM todo WHERE id=?", [req.body.id], function(err, result){
+	if(err){
+      		next(err);
+      		return;
+    	}
+	
+	else{	
+		mysql.pool.query('SELECT * FROM todo', function(err, rows, fields){
+    			if(err){
+      				next(err);
+      				return;
+    			}
+			console.log(JSON.stringify(rows));    	
+    			res.type("application/json");
+    			res.send(rows);
+  		})
+	}
+  });
+});
+
+app.post('/edit', function(req, res, next){
+
+	console.log('in edit');
+
+	var context = {};
+
+	mysql.pool.query("SELECT * FROM todo WHERE id=?", [req.body.id], function(err, rows, fields){
+
+		if(err){
+			next(err);
+			return;
+		}
+
+		else{
+			res.type("application/json");
+			res.send(rows);
+		}
+	})
+});
+
+
+///safe-update?id=1&name=The+Task&done=false
+app.post('/update',function(req,res,next){
+	console.log("In update");
+  var context = {};
+  mysql.pool.query("SELECT * FROM todo WHERE id=?", [req.body.id], function(err, result){
+    if(err){
+      next(err);
+      return;
+    }
+    if(result.length == 1){
+      var curVals = result[0];
+      mysql.pool.query("UPDATE todo SET name=?, reps=?, weight=? date=? lbs=? WHERE id=?",
+        [req.body.name || curVals.name, req.body.reps || curVals.reps, req.body.weight || curVals.weight, req.body.date || curVals.date, req.body.lbs || curVals.lbs, req.body.id],
+        function(err, result){
+        if(err){
+          next(err);
+          return;
+        }
+	else{	
+		mysql.pool.query('SELECT * FROM todo', function(err, rows, fields){
+    			if(err){
+      				next(err);
+      				return;
+    			}
+			console.log("update " + JSON.stringify(rows));    	
+
+    			res.type("application/json");
+    			res.send(rows);
+  		})
+	}
+      });
+    }
+  });
+});
 
 app.use(function(req,res){
   res.status(404);
@@ -125,19 +221,6 @@ app.listen(app.get('port'), function(){
 
 
 /*
-app.get('/delete',function(req,res,next){
-  var context = {};
-  mysql.pool.query("DELETE FROM todo WHERE id=?", [req.query.id], function(err, result){
-    if(err){
-      next(err);
-      return;
-    }
-    context.results = "Deleted " + result.changedRows + " rows.";
-    res.render('home',context);
-  });
-});
-
-
 ///simple-update?id=2&name=The+Task&done=false&due=2015-12-5
 app.get('/simple-update',function(req,res,next){
   var context = {};
@@ -150,30 +233,6 @@ app.get('/simple-update',function(req,res,next){
     }
     context.results = "Updated " + result.changedRows + " rows.";
     res.render('home',context);
-  });
-});
-
-///safe-update?id=1&name=The+Task&done=false
-app.get('/safe-update',function(req,res,next){
-  var context = {};
-  mysql.pool.query("SELECT * FROM todo WHERE id=?", [req.query.id], function(err, result){
-    if(err){
-      next(err);
-      return;
-    }
-    if(result.length == 1){
-      var curVals = result[0];
-      mysql.pool.query("UPDATE todo SET name=?, reps=?, weight=? date=? unit=? WHERE id=? ",
-        [req.query.name || curVals.name, req.query.reps || curVals.reps, req.query.weight || curVals.weight, req.query.date || curVals.date, req.query.unit || curVals.unit, req.query.id],
-        function(err, result){
-        if(err){
-          next(err);
-          return;
-        }
-        context.results = "Updated " + result.changedRows + " rows.";
-        res.render('home',context);
-      });
-    }
   });
 });
 */
