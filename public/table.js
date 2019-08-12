@@ -104,7 +104,13 @@ function buildTable(exerciseData) {
 				cellData = document.createTextNode(rowData["weight"]);
 			}
 			else if(i == 3){
-				cellData = document.createTextNode(rowData["date"]);
+				if(rowData["date"] != null){
+					var parseDate = rowData["date"].substring(0, 10);
+					cellData = document.createTextNode(parseDate);
+				}
+				else{
+					cellData = document.createTextNode("");
+				}
 			}
 			else if(i == 4){
 				if(rowData["lbs"] == 1)
@@ -114,10 +120,11 @@ function buildTable(exerciseData) {
 			}
 			else if(i == 5){
 				var deleteForm = document.createElement("form");
-				
-				var button = document.createElement("input");
-				button.type = "submit";
-				button.name = "id";
+
+				var button = document.createElement("button");
+				button.textContent = "delete";
+				button.type = "hidden";
+				button.name = "delete";
 				button.value = rowData["id"];
 				button.onclick = function() { deleteRow(this.value); };
 	
@@ -127,8 +134,9 @@ function buildTable(exerciseData) {
 			else{
 				var editForm = document.createElement("form");
 
-				var button = document.createElement("input");
-				button.type = "submit";
+				var button = document.createElement("button");
+				button.textContent = "edit";
+				button.type = "hidden";
 				button.name = "edit";
 				button.value = rowData["id"];
 				button.onclick = function() { 
@@ -170,6 +178,10 @@ document.getElementById("addExercise").addEventListener("click", function(newExe
 
 	// Populate exercise object with data from main.handlebars
 	exercise.name = document.getElementById("newName").value;
+	if(exercise.name == ''){
+		alert("Please enter a name");
+		return;
+	}
 	exercise.reps = document.getElementById("newReps").value;
 	exercise.weight = document.getElementById("newWeight").value;
 	exercise.date = document.getElementById("newDate").value;
@@ -317,15 +329,15 @@ function editTable(rowData){
 
 	// Get edit div at home.handlebars
 	var editMain = document.getElementById("editWorkout");
-/*
+
 	if(editMain.firstChild != null){
 		editMain.removeChild(editMain.firstChild);
 	}
-*/
+
 	// Create form
 	var form = document.createElement("form");
 	form.name = "editForm";
-	form.onsubmit = "return updateExercise();";
+	form.onsubmit = "return false";
 	var fieldset = document.createElement("fieldset");
 	var legend = document.createElement("legend");
 
@@ -435,6 +447,7 @@ function editTable(rowData){
 	submitInput.type = "submit";
 	submitInput.name = "submit edit";
 	submitInput.id = "editExercise";
+	submitInput.addEventListener('click', updateExercise, false);
 	submitDiv.appendChild(submitInput);
 
 	// Append divs to form
@@ -459,7 +472,6 @@ function editTable(rowData){
 function updateExercise() {
 
 	console.log("Do I make it to listen?");
-	console.log(document.forms["editForm"]["name"]);
 	
 	// New AJAX request
 	var req = new XMLHttpRequest();
@@ -519,10 +531,10 @@ function updateExercise() {
 
 	// Send exercise data to server
 	req.send(JSON.stringify(exercise));
-	editExercise.preventDefault();
+//	editExercise.preventDefault();
 
 
-	return false;
+//	return false;
 }
 
 	

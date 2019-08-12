@@ -180,25 +180,28 @@ app.post('/update',function(req,res,next){
     }
     if(result.length == 1){
       var curVals = result[0];
-      mysql.pool.query("UPDATE todo SET name=?, reps=?, weight=? date=? lbs=? WHERE id=?",
-        [req.body.name || curVals.name, req.body.reps || curVals.reps, req.body.weight || curVals.weight, req.body.date || curVals.date, req.body.lbs || curVals.lbs, req.body.id],
+			console.log("Im in create table1");
+      mysql.pool.query("UPDATE todo SET name=?, reps=?, weight=?, date=?, lbs=? WHERE id=?",
+       //	[req.body.name, req.body.reps, req.body.weight, req.body.date, req.body.lbs, req.body.id],
+	 [req.body.name || curVals.name, req.body.reps || curVals.reps, req.body.weight || curVals.weight, req.body.date || curVals.date, req.body.lbs || curVals.lbs, req.body.id],
         function(err, result){
-        if(err){
-          next(err);
-          return;
-        }
-	else{	
-		mysql.pool.query('SELECT * FROM todo', function(err, rows, fields){
-    			if(err){
-      				next(err);
-      				return;
-    			}
-			console.log("update " + JSON.stringify(rows));    	
+        	if(err){
+          		next(err);
+          		return;
+        	}
+		else{	
+			mysql.pool.query('SELECT * FROM todo', function(err, rows, fields){
+    				if(err){
+      					next(err);
+      					return;
+    				}
+				console.log("Im in create table");
+				console.log(JSON.stringify(rows));    	
 
-    			res.type("application/json");
-    			res.send(rows);
-  		})
-	}
+    				res.type("application/json");
+    				res.send(rows);
+  			});
+		}
       });
     }
   });
